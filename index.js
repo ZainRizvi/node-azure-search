@@ -5,7 +5,7 @@ module.exports = function(options){
 	if (!options) throw new Error("please supply the options object");
 	if (!options.url) throw new Error("please supply the url of the search service");
 	if (!options.key) throw new Error("please supply the key of the search service");
-	if (!options.version) options.version = "2014-07-31-Preview";
+	if (!options.version) options.version = "2015-02-28";
 
 	var get = function(path, overrides, callback){
 		execute(path, "GET", null, overrides, callback);
@@ -173,7 +173,48 @@ module.exports = function(options){
 				cb(null, data.value);						
 			});
 		},
-
+		updateDocuments : function(indexName,documents,cb){
+			if (!indexName) throw new Error("indexName is not defined");
+			if (!documents) throw new Error("documents is not defined");
+			
+			for(var i=0; i<documents.length;i++){
+				documents[i]["@search.action"] = "merge";
+			}
+			
+			post(['indexes', indexName, "docs", "index"], {value:documents}, function(err, data){
+				if (err) return cb(err);
+				if (data && data.error) return cb(data.error);
+				cb(null, data.value);						
+			});
+		},
+		uploadDocuments : function(indexName,documents,cb){
+			if (!indexName) throw new Error("indexName is not defined");
+			if (!documents) throw new Error("documents is not defined");
+			
+			for(var i=0; i<documents.length;i++){
+				documents[i]["@search.action"] = "upload";
+			}
+			
+			post(['indexes', indexName, "docs", "index"], {value:documents}, function(err, data){
+				if (err) return cb(err);
+				if (data && data.error) return cb(data.error);
+				cb(null, data.value);						
+			});
+		},
+		deleteDocuments : function(indexName,keys,cb){
+			if (!indexName) throw new Error("indexName is not defined");
+			if (!keys) throw new Error("keys is not defined");
+			
+			for(var i=0; i<keys.length;i++){
+				keys[i]["@search.action"] = "delete";
+			}
+			
+			post(['indexes', indexName, "docs", "index"], {value:keys}, function(err, data){
+				if (err) return cb(err);
+				if (data && data.error) return cb(data.error);
+				cb(null, data.value);						
+			});
+		},
 		search : function(indexName, query, cb){
 			if (!indexName) throw new Error("indexName is not defined");
 			if (!query) throw new Error("query is not defined");		
